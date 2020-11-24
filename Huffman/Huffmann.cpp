@@ -1,78 +1,63 @@
-//2019072351_김정훈_12838
+//2019072351_김정훈_12838 
+#include <string>
 #include <stdio.h>
+#include <bits/stdc++.h>
+using namespace std;
 
-int a[30001];
+struct intpair {
+	int x, y;
+};
 
-void Heapify(int i, int n){
-    int parent = 1;
-    int left = i*2;
-    int right = i*2+1;
-    if(left <= n && a[left] < a[i]) parent = left;
-    else parent = i;
+int v[30000];
+int N,total,res,c;
+vector<int> s;
+priority_queue<pair<int, pair<int,int> > > node;
+pair<intpair, int> tree[60000];
 
-    if(right <= n && a[right] < a[parent]) parent = right;
-
-    if (parent != i){
-        int temp = a[i];
-        a[i] = a[parent];
-        a[parent] = temp;
-        Heapify(parent,n);
-    }
-    else return;
+void Huffman(int x, int N) {
+	pair<intpair, int> temp = tree[x];
+	if (temp.first.x == -1 && temp.first.y == -1) {
+		res += (N*temp.second);
+		return;
+	}
+	Huffman(temp.first.x, N + 1);
+	Huffman(temp.first.y, N + 1);
 }
 
-void BuildHeap(int n)
-{
-	int i;
-	for(i = n/2; i >= 1; i--){
-		Heapify(i, n);
+int main() {
+	scanf("%d", &N);
+	for (int i = 0; i < N; i++) {
+		string str;
+		cin >> str >> v[i];
+		node.push({-v[i],{v[i],c++}});
 	}
-}
+	scanf("%d", &total);
 
-int extractMin(int n)
-{
-	int temp = a[n];
-	a[n] = a[1];
-	a[1] = temp;
-	
-	Heapify(1, n - 1);
-	return a[n];
-}
-
-int main()
-{
-	int N;
-	int S;
-	scanf("%d",&N);
-	char value[N][4];
-	for(int i = 1; i <= N; i++)
-	{
-		scanf("%s %d",&value[i],&a[i]);
+	int ind = N, idx = 0;
+	while (ind) {
+		idx++;
+		ind /= 2;
 	}
+	printf("%d\n", total*idx);
 
-	scanf("%d",&S);
+	while (node.size()>1) {
+		pair<int,pair<int,int> > Left;
+		pair<int,pair<int,int> > Right;
+		Left = node.top();
+		node.pop();
+		Right = node.top();
+		node.pop();
 
-	int fixedLength = 0;
-	int temp = N-1;
-	if(temp == 0) fixedLength = S;
-	while(temp > 0){
-		temp /= 2;
-		fixedLength += S;
+		if(Left.second.first != 0)
+			tree[Left.second.second] = {{-1,-1},Left.second.first};
+		if(Right.second.first != 0)
+			tree[Right.second.second] = {{-1,-1},Right.second.first};
+
+		tree[c] = {{Left.second.second,Right.second.second},0};
+		node.push({Left.first+Right.first,{0, c++}});
 	}
-	
-	int huffmanLength = 0;
-	BuildHeap(N);
+	Huffman(c-1,0);
+	printf("%d\n",res);
 
-	while(N>1){
-		temp = 0;
-		temp += extractMin(N);
-		temp += extractMin(N-1);
-		N--;
-		a[N] = temp;
-		if(N>=2) Heapify(N/2,N);
-		huffmanLength += temp;
-	}
-	
-	printf("%d\n%d", fixedLength, huffmanLength);
 	return 0;
 }
